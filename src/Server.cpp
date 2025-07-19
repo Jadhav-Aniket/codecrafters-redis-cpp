@@ -68,7 +68,7 @@ int main(int argc, char **argv) {
     std::cerr << "Failed to read from client\n";
   }
 
-  n = write(newsockfd, "+PONG\r\n", 8);
+  n = write(newsockfd, "+PONG\r\n", 7);
   if (n < 0) {
     std::cerr << "Failed to write to client\n";
   }
