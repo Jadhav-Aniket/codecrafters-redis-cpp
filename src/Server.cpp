@@ -16,7 +16,7 @@ int main(int argc, char **argv) {
   int server_fd = socket(AF_INET, SOCK_STREAM, 0);
   if (server_fd < 0) {
    std::cerr << "Failed to create server socket\n";
-   return 1;
+   return 1;  
   }
   
   // Since the tester restarts your program quite often, setting SO_REUSEADDR
@@ -52,9 +52,29 @@ int main(int argc, char **argv) {
 
   // Uncomment this block to pass the first stage
   // 
-  accept(server_fd, (struct sockaddr *) &client_addr, (socklen_t *) &client_addr_len);
-  std::cout << "Client connected\n";
-  
+  int newsockfd = accept(server_fd, (struct sockaddr *) &client_addr, (socklen_t *) &client_addr_len);
+  if(newsockfd < 0) {
+    std::cerr << "Failed to accept client connection\n";
+    return 1;
+  }
+  else {
+    std::cout << "Client connected\n";
+  }
+
+  char buffer[256];
+  bzero(buffer, sizeof(buffer));
+  ssize_t n = read(newsockfd, buffer, sizeof(buffer) - 1);
+  if (n < 0) {
+    std::cerr << "Failed to read from client\n";
+  }
+
+  n = write(newsockfd, "+PONG\r\n", 8);
+  if (n < 0) {
+    std::cerr << "Failed to write to client\n";
+  }
+
+
+  close(newsockfd);
   close(server_fd);
 
   return 0;
