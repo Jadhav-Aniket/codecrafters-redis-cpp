@@ -52,8 +52,8 @@ int main(int argc, char **argv) {
 
   // Uncomment this block to pass the first stage
   // 
-  int newsockfd = accept(server_fd, (struct sockaddr *) &client_addr, (socklen_t *) &client_addr_len);
-  if(newsockfd < 0) {
+  int client_fd = accept(server_fd, (struct sockaddr *) &client_addr, (socklen_t *) &client_addr_len);
+  if(client_fd < 0) {
     std::cerr << "Failed to accept client connection\n";
     return 1;
   }
@@ -61,20 +61,22 @@ int main(int argc, char **argv) {
     std::cout << "Client connected\n";
   }
 
-  char buffer[256];
-  bzero(buffer, sizeof(buffer));
-  ssize_t n = read(newsockfd, buffer, sizeof(buffer) - 1);
+  std::string input_buffer;
+  bzero(input_buffer.data(), input_buffer.size());
+  ssize_t n = read(client_fd, input_buffer.data(), input_buffer.size() - 1);
   if (n < 0) {
     std::cerr << "Failed to read from client\n";
   }
 
-  n = write(newsockfd, "+PONG\r\n", 7);
+  //n = write(client_fd, "+PONG\r\n", 7);
+  std::string response = "+PONG\r\n";
+  send(client_fd, response.c_str(), response.size(), 0);
   if (n < 0) {
     std::cerr << "Failed to write to client\n";
   }
 
 
-  close(newsockfd);
+  close(client_fd);
   close(server_fd);
 
   return 0;
