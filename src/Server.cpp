@@ -61,20 +61,22 @@ int main(int argc, char **argv) {
     std::cout << "Client connected\n";
   }
 
-  std::string input_buffer;
-  bzero(input_buffer.data(), input_buffer.size());
-  ssize_t n = read(client_fd, input_buffer.data(), input_buffer.size() - 1);
-  if (n < 0) {
-    std::cerr << "Failed to read from client\n";
-  }
+  while(true)
+  {
+    std::string input_buffer(256, '\0');
+    
+    ssize_t n = recv(client_fd, &input_buffer[0], input_buffer.size() - 1, 0);
+    if (n < 0) {
+      std::cerr << "Failed to read from client\n";
+    }
 
-  //n = write(client_fd, "+PONG\r\n", 7);
-  std::string response = "+PONG\r\n";
-  send(client_fd, response.c_str(), response.size(), 0);
-  if (n < 0) {
-    std::cerr << "Failed to write to client\n";
+    if (n == 0) {
+      std::cout << "Client disconnected\n";
+      break; // Exit the loop if the client disconnects
+    }
+    std::string response = "+PONG\r\n";
+    send(client_fd, response.c_str(), response.size(), 0);
   }
-
 
   close(client_fd);
   close(server_fd);
